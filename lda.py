@@ -15,7 +15,7 @@ import spacy
 import logging
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.ERROR)
 
-import warnings
+import warnings, sys
 warnings.filterwarnings("ignore",category=DeprecationWarning)
 
 # NLTK Stop words
@@ -25,7 +25,8 @@ if __name__ == '__main__':
     stop_words.extend(['from', 'subject', 're', 'edu', 'use'])
 
     # Import Dataset
-    df = pd.read_json('https://raw.githubusercontent.com/cdap-39/data/master/news.json')
+    # df = pd.read_json('https://raw.githubusercontent.com/cdap-39/data/master/news.json')
+    df = pd.read_json('input.json')
 
     # Convert to list
     data = df.content.values.tolist()
