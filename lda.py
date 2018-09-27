@@ -172,11 +172,25 @@ if __name__ == '__main__':
 
     enriched=[]
     for index, row in df.iterrows():
+        imageSrc = ''
+        if 'image' in row:
+            imageSrc = row['image']
         struct={
+            "category": {
+                "category": "",
+                "pob": ""
+            },
+            "image": imageSrc,
+            "media-link": "",
+            "video-link": "",
             "heading": row['heading'],
             "link": row['link'],
             "content": row['content'],
-            "ref": row['ref']
+            "ref": row['ref'],
+            "media_ethics": {
+                "violations": False,
+                "reason": ""
+            }
         }
         enriched.append(struct)
     # print(json.dumps(enriched))
