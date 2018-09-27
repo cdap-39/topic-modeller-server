@@ -18,6 +18,8 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 import warnings, sys
 warnings.filterwarnings("ignore",category=DeprecationWarning)
 
+import requests
+
 # NLTK Stop words
 from nltk.corpus import stopwords
 if __name__ == '__main__':
@@ -177,4 +179,7 @@ if __name__ == '__main__':
             "ref": row['ref']
         }
         enriched.append(struct)
-    print(json.dumps(enriched))
+    # print(json.dumps(enriched))
+    headers = {"Content-Type": "application/json"}
+    r = requests.put('http://35.237.151.220:8081/api/processed_news', data=json.dumps(enriched), headers=headers)
+    print(r)
