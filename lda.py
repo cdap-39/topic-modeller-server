@@ -24,7 +24,7 @@ import requests
 from nltk.corpus import stopwords
 if __name__ == '__main__':
     stop_words = stopwords.words('english')
-    stop_words.extend(['from', 'subject', 're', 'edu', 'use'])
+    # stop_words.extend(['from', 'subject', 're', 'edu', 'use'])
 
     # Import Dataset
     # df = pd.read_json('https://raw.githubusercontent.com/cdap-39/data/master/news.json')
@@ -39,20 +39,19 @@ if __name__ == '__main__':
     # Remove new line characters
     data = [re.sub('\s+', ' ', sent) for sent in data]
 
-    # Remove distracting single quotes
+    # Remove single quotes
     data = [re.sub("\'", "", sent) for sent in data]
 
     def sent_to_words(sentences):
         for sentence in sentences:
-            yield(gensim.utils.simple_preprocess(str(sentence), deacc=True))  # deacc=True removes punctuations
+            yield(gensim.utils.simple_preprocess(str(sentence), deacc=True))
 
     data_words = list(sent_to_words(data))
 
     # Build the bigram and trigram models
-    bigram = gensim.models.Phrases(data_words, min_count=5, threshold=100) # higher threshold fewer phrases.
+    bigram = gensim.models.Phrases(data_words, min_count=5, threshold=100)
     trigram = gensim.models.Phrases(bigram[data_words], threshold=100)
 
-    # Faster way to get a sentence clubbed as a trigram/bigram
     bigram_mod = gensim.models.phrases.Phraser(bigram)
     trigram_mod = gensim.models.phrases.Phraser(trigram)
 
@@ -95,11 +94,11 @@ if __name__ == '__main__':
     # Create Corpus
     texts = data_lemmatized
 
-    # Term Document Frequency
+    # doc2bow counts the number of occurrences of each distinct word
     corpus = [id2word.doc2bow(text) for text in texts]
 
     # Human readable format of corpus (term-frequency)
-    [[(id2word[id], freq) for id, freq in cp] for cp in corpus[:1]]
+    # [[(id2word[id], freq) for id, freq in cp] for cp in corpus[:1]]
 
     import os
     os.environ.update({'MALLET_HOME': r'C:\\mallet-2.0.8\\mallet-2.0.8\\'})
@@ -118,15 +117,16 @@ if __name__ == '__main__':
     from gensim import similarities
     index = similarities.MatrixSimilarity(optimal_model[corpus])
 
-    query = "COLOMBO (News 1st) – Secretary of the Ministry of Disaster Management, Engineer Sisira Kumara states that owing to the prevailing weather over 350 houses have been damaged.He added that a sum of Rs.10,000 is to be paid as an advance for the affected families from today (September 25).He further added that measures have been taken to estimate the cost of the damage caused and compensation to be paid."
+    # query = "COLOMBO (News 1st) – Secretary of the Ministry of Disaster Management, Engineer Sisira Kumara states that owing to the prevailing weather over 350 houses have been damaged.He added that a sum of Rs.10,000 is to be paid as an advance for the affected families from today (September 25).He further added that measures have been taken to estimate the cost of the damage caused and compensation to be paid."
 
-    vec_bow = id2word.doc2bow(query.lower().split())
+    # count the number of occurrences of each distinct word and convert to the word to its integer form
+    # vec_bow = id2word.doc2bow(query.lower().split())
 
-    vec_lda = optimal_model[vec_bow]
-    sims = index[vec_lda]
+    # vec_lda = optimal_model[vec_bow]
+    # sims = index[vec_lda]
 
-    sims = sorted(enumerate(sims), key=lambda item: -item[1])
-    top_ten = (sims[:5])
+    # sims = sorted(enumerate(sims), key=lambda item: -item[1])
+    # top_ten = (sims[:5])
 
     def getSimilarArticles(query):
         vec_bow = id2word.doc2bow(query.lower().split())
@@ -173,15 +173,15 @@ if __name__ == '__main__':
     enriched=[]
     for index, row in df.iterrows():
         imageSrc = ''
-        if 'image' in row:
-            imageSrc = row['image']
+        if 'media-link' in row:
+            imageSrc = row['media-link']
         struct={
             "category": {
                 "category": "",
                 "pob": ""
             },
             "image": imageSrc,
-            "media-link": "",
+            "media-link": imageSrc,
             "video-link": "",
             "heading": row['heading'],
             "link": row['link'],
@@ -193,7 +193,7 @@ if __name__ == '__main__':
             }
         }
         enriched.append(struct)
-    # print(json.dumps(enriched))
+    print(json.dumps(enriched))
     headers = {"Content-Type": "application/json"}
     r = requests.put('http://35.237.151.220:8081/api/processed_news', data=json.dumps(enriched), headers=headers)
     print(r)
